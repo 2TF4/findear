@@ -1,41 +1,39 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
-} from "react-router-dom";
-import { motion } from "framer-motion";
-import { Flowbite, Toast } from "flowbite-react";
-import { HelmetProvider } from "react-helmet-async";
-import { EventSourcePolyfill } from "event-source-polyfill";
-import { HiExclamation } from "react-icons/hi";
-import { FaTelegramPlane } from "react-icons/fa";
-import {
-  Main,
-  FoundItemWrite,
-  AgencyRegist,
-  Boarding,
-  FoundItemDetail,
-  Boards,
-  Introduce,
-  AcquireRegist,
-  LostItemDetail,
-  LostItemRegist,
-  Letter,
-  Alarm,
-  MyBoard,
-  MyPage,
-  NaverLogin,
-  UpdateInfo,
-  MatchingList,
-  CheckInfo,
-  LetterRoomDetail,
-} from "@/pages";
-import { Header, Footer } from "@/widgets";
-import { tokenCheck } from "@/entities";
-import { useMemberStore, StateContext, SSEConnect } from "@/shared";
-import "./index.css";
+} from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Flowbite, Toast } from 'flowbite-react';
+import { HelmetProvider } from 'react-helmet-async';
+import { EventSourcePolyfill } from 'event-source-polyfill';
+import { HiExclamation } from 'react-icons/hi';
+import { FaTelegramPlane } from 'react-icons/fa';
+import { tokenCheck } from '@/entities';
+import { useMemberStore, StateContext, SSEConnect } from '@/shared';
+import './index.css';
+
+const Main = lazy(() => import('@/pages/Main'));
+const FoundItemWrite = lazy(() => import('@/pages/FoundItemWrite'));
+const AgencyRegist = lazy(() => import('@/pages/AgencyRegist'));
+const Boarding = lazy(() => import('@/pages/Boarding'));
+const FoundItemDetail = lazy(() => import('@/pages/FoundItemDetail'));
+const Boards = lazy(() => import('@/pages/Boards'));
+const Introduce = lazy(() => import('@/pages/Introduce'));
+const AcquireRegist = lazy(() => import('@/pages/AcquireRegist'));
+const LostItemDetail = lazy(() => import('@/pages/LostItemDetail'));
+const LostItemRegist = lazy(() => import('@/pages/LostItemRegist'));
+const Letter = lazy(() => import('@/pages/Letter'));
+const Alarm = lazy(() => import('@/pages/Alarm'));
+const MyBoard = lazy(() => import('@/pages/MyBoard'));
+const MyPage = lazy(() => import('@/pages/MyPage'));
+const NaverLogin = lazy(() => import('@/pages/NaverLogin'));
+const UpdateInfo = lazy(() => import('@/pages/UpdateInfo'));
+const MatchingList = lazy(() => import('@/pages/MatchingList'));
+const CheckInfo = lazy(() => import('@/pages/CheckInfo'));
+const LetterRoomDetail = lazy(() => import('@/pages/LetterRoomDetail'));
 
 const App = () => {
   const {
@@ -124,7 +122,7 @@ const App = () => {
     }
   }, []);
 
-  const handleToast = () => {
+  const handleToast = useCallback(() => {
     return (
       <motion.div
         className="absolute w-[300px] self-center top-[20%] z-[10]"
@@ -140,7 +138,7 @@ const App = () => {
         </Toast>
       </motion.div>
     );
-  };
+  }, [toastMessage]);
 
   return (
     <HelmetProvider>
@@ -149,123 +147,111 @@ const App = () => {
           <div className="Container">
             <Router>
               {meta && <Header />}
-              {!mobile && (
-                <Toast className="self-center mt-[80px]">
-                  <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
-                    <HiExclamation className="h-5 w-5" />
-                  </div>
-                  <div className="ml-3 text-sm font-normal">
-                    Findear 서비스는 모바일 환경에 최적화되어 있습니다. PC
-                    환경에서는 일부 기능이 제한되거나 정상 작동하지 않을 수
-                    있습니다.
-                  </div>
-                  <Toast.Toggle />
-                </Toast>
-              )}
-
               {openToast ? handleToast() : ""}
               <main className="flex py-[80px] relative flex-col overflow-y-scroll scrollbar-hide flex-1  xl:mx-[10%]">
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      Authenticate ? <Navigate to="/main" /> : <Boarding />
-                    }
-                  />
-                  <Route path="/main" element={<Main />} />
-                  <Route
-                    path="/foundItemWrite"
-                    element={
-                      Authenticate ? <FoundItemWrite /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route
-                    path="/agencyRegist"
-                    element={
-                      Authenticate ? <AgencyRegist /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route
-                    path="/updateInfo"
-                    element={
-                      Authenticate ? <UpdateInfo /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route
-                    path="/checkInfo"
-                    element={Authenticate ? <CheckInfo /> : <Navigate to="/" />}
-                  />
-                  <Route
-                    path="/losts"
-                    element={<Boards boardType="분실물" />}
-                  />
-                  <Route
-                    path="/acquire"
-                    element={<Boards boardType="습득물" />}
-                  />
-                  <Route
-                    path="/MyBoard"
-                    element={Authenticate ? <MyBoard /> : <Navigate to="/" />}
-                  />
-                  <Route
-                    path="/matchingList"
-                    element={
-                      Authenticate ? <MatchingList /> : <Navigate to="/" />
-                    }
-                  />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        Authenticate ? <Navigate to="/main" /> : <Boarding />
+                      }
+                    />
+                    <Route path="/main" element={<Main />} />
+                    <Route
+                      path="/foundItemWrite"
+                      element={
+                        Authenticate ? <FoundItemWrite /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route
+                      path="/agencyRegist"
+                      element={
+                        Authenticate ? <AgencyRegist /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route
+                      path="/updateInfo"
+                      element={
+                        Authenticate ? <UpdateInfo /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route
+                      path="/checkInfo"
+                      element={Authenticate ? <CheckInfo /> : <Navigate to="/" />}
+                    />
+                    <Route
+                      path="/losts"
+                      element={<Boards boardType="분실물" />}
+                    />
+                    <Route
+                      path="/acquire"
+                      element={<Boards boardType="습득물" />}
+                    />
+                    <Route
+                      path="/MyBoard"
+                      element={Authenticate ? <MyBoard /> : <Navigate to="/" />}
+                    />
+                    <Route
+                      path="/matchingList"
+                      element={
+                        Authenticate ? <MatchingList /> : <Navigate to="/" />
+                      }
+                    />
 
-                  <Route
-                    path="/letter/:roomId"
-                    element={
-                      Authenticate ? <LetterRoomDetail /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route path="/introduce" element={<Introduce />} />
-                  <Route
-                    path="/acquireRegist"
-                    element={
-                      Authenticate ? <AcquireRegist /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route
-                    path="/myPage"
-                    element={Authenticate ? <MyPage /> : <Navigate to="/" />}
-                  />
-                  <Route path="/members/login" element={<NaverLogin />} />
-                  <Route
-                    path="/foundItemDetail/:id"
-                    element={
-                      Authenticate ? <FoundItemDetail /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route
-                    path="/lostItemDetail/:id"
-                    element={
-                      Authenticate ? <LostItemDetail /> : <Navigate to="/" />
-                    }
-                  />
-                  <Route
-                    path="/lostItemRegist"
-                    element={
-                      Authenticate ? <LostItemRegist /> : <Navigate to="/" />
-                    }
-                  />
+                    <Route
+                      path="/letter/:roomId"
+                      element={
+                        Authenticate ? <LetterRoomDetail /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route path="/introduce" element={<Introduce />} />
+                    <Route
+                      path="/acquireRegist"
+                      element={
+                        Authenticate ? <AcquireRegist /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route
+                      path="/myPage"
+                      element={Authenticate ? <MyPage /> : <Navigate to="/" />}
+                    />
+                    <Route path="/members/login" element={<NaverLogin />} />
+                    <Route
+                      path="/foundItemDetail/:id"
+                      element={
+                        Authenticate ? <FoundItemDetail /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route
+                      path="/lostItemDetail/:id"
+                      element={
+                        Authenticate ? <LostItemDetail /> : <Navigate to="/" />
+                      }
+                    />
+                    <Route
+                      path="/lostItemRegist"
+                      element={
+                        Authenticate ? <LostItemRegist /> : <Navigate to="/" />
+                      }
+                    />
 
-                  <Route
-                    path="/letter"
-                    element={Authenticate ? <Letter /> : <Navigate to="/" />}
-                  />
-                  <Route
-                    path="/alarm"
-                    element={Authenticate ? <Alarm /> : <Navigate to="/" />}
-                  />
-                  <Route
-                    path="/matchingList/:id"
-                    element={
-                      Authenticate ? <MatchingList /> : <Navigate to="/" />
-                    }
-                  ></Route>
-                </Routes>
+                    <Route
+                      path="/letter"
+                      element={Authenticate ? <Letter /> : <Navigate to="/" />}
+                    />
+                    <Route
+                      path="/alarm"
+                      element={Authenticate ? <Alarm /> : <Navigate to="/" />}
+                    />
+                    <Route
+                      path="/matchingList/:id"
+                      element={
+                        Authenticate ? <MatchingList /> : <Navigate to="/" />
+                      }
+                    />
+                  </Routes>
+                </Suspense>
               </main>
               {meta && <Footer />}
             </Router>
